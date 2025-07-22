@@ -1,0 +1,195 @@
+<!DOCTYPE html> 
+<html lang="pt-BR"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Rastreio de Pedidos - Imperial Rodas</title> 
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="rastreio.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛞</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head> 
+<body> 
+  <div class="container"> 
+    <div class="header">
+      <div class="logo"><i class="fas fa-car"></i> IMPERIAL RODAS <i class="fas fa-cog"></i></div>
+      <p>Qualidade e confiança em cada entrega</p>
+      <div class="header-decoration">
+        <span class="decoration-line"></span>
+        <i class="fas fa-star"></i>
+        <span class="decoration-line"></span>
+      </div>
+    </div>
+    
+    <div class="box" id="rastreio-container"> 
+      <h1>Rastreamento de Pedido</h1>
+      
+      <div id="login-section" class="section">
+        <h2><i class="fas fa-user-lock"></i> Acesso ao Rastreamento</h2>
+        <p>Digite seu e-mail e CPF/CNPJ para acessar o rastreamento do seu pedido.</p>
+        
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">E-mail:</label>
+            <input type="email" id="login-email" name="login-email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="login-cpf-cnpj">CPF/CNPJ:</label>
+            <input type="text" id="login-cpf-cnpj" name="login-cpf-cnpj" required>
+          </div>
+          
+          <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> ACESSAR RASTREAMENTO</button>
+        </form>
+      </div>
+      
+      <div id="rastreio-section" class="section" style="display: none;">
+        <div class="welcome-message">
+          <h2><i class="fas fa-user-check"></i> Bem-vindo(a), <span id="cliente-nome">Cliente</span>!</h2>
+          <p>Utilize o campo abaixo para rastrear seu pedido.</p>
+        </div>
+        
+        <form id="rastreio-form">
+          <div class="form-group">
+            <label for="codigo-rastreio">Código de Rastreio:</label>
+            <div class="rastreio-input-container">
+              <input type="text" id="codigo-rastreio" name="codigo-rastreio" placeholder="Ex: AA12345678BR" required>
+              <button type="submit" class="rastreio-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <p class="rastreio-hint">O código deve começar com AA e terminar com BR</p>
+          </div>
+        </form>
+        
+        <div id="resultado-rastreio" style="display: none;">
+          <div class="rastreio-header">
+            <h3><i class="fas fa-shipping-fast"></i> Status do Pedido</h3>
+            <div class="codigo-display">Código: <span id="codigo-display"></span></div>
+          </div>
+          
+          <div class="timeline">
+            <div class="timeline-item active">
+              <div class="timeline-icon"><i class="fas fa-clipboard-check"></i></div>
+              <div class="timeline-content">
+                <h4>Pedido Confirmado</h4>
+                <p>Seu pedido foi recebido e está sendo processado.</p>
+                <span class="timeline-date">Data atual</span>
+              </div>
+            </div>
+            
+            <div class="timeline-item active" id="preparacao-item">
+              <div class="timeline-icon"><i class="fas fa-box-open"></i></div>
+              <div class="timeline-content">
+                <h4>Em Preparação</h4>
+                <p>Estamos preparando seu pedido para envio.</p>
+                <span class="timeline-date">Em andamento</span>
+              </div>
+            </div>
+            
+            <div class="timeline-item" id="transporte-item">
+              <div class="timeline-icon"><i class="fas fa-truck"></i></div>
+              <div class="timeline-content">
+                <h4>Em Transporte</h4>
+                <p>Seu pedido está a caminho.</p>
+                <span class="timeline-date">Aguardando</span>
+              </div>
+            </div>
+            
+            <div class="timeline-item" id="entrega-item">
+              <div class="timeline-icon"><i class="fas fa-home"></i></div>
+              <div class="timeline-content">
+                <h4>Entregue</h4>
+                <p>Seu pedido foi entregue com sucesso.</p>
+                <span class="timeline-date">Aguardando</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="rastreio-info">
+            <div class="info-card">
+              <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
+              <div class="info-content">
+                <h4>Previsão de Entrega</h4>
+                <p id="previsao-entrega">Em até 10 dias úteis</p>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div class="info-content">
+                <h4>Endereço de Entrega</h4>
+                <p id="endereco-entrega">Carregando...</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- QR Code para entregador (exibido apenas quando entregue) -->
+          <div id="qr-code-section" class="qr-code-container" style="display: none;">
+            <div class="qr-code-header">
+              <h3><i class="fas fa-qrcode"></i> QR Code para Entregador</h3>
+              <p>Mostre este código para o entregador confirmar a entrega</p>
+            </div>
+            <div class="qr-code-display">
+              <div id="qr-code"></div>
+              <p class="qr-code-info">Código: <span id="qr-code-text"></span></p>
+            </div>
+          </div>
+          
+          <div class="rastreio-actions">
+            <button id="atualizar-rastreio" class="action-btn"><i class="fas fa-sync-alt"></i> Atualizar Status</button>
+            <button id="contato-suporte" class="action-btn secondary"><i class="fas fa-headset"></i> Contato Suporte</button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="contato-section" class="section" style="display: none;">
+        <h2><i class="fas fa-headset"></i> Contato com Suporte</h2>
+        <p>Preencha o formulário abaixo para entrar em contato com nossa equipe de suporte.</p>
+        
+        <form id="contato-form">
+          <div class="form-group">
+            <label for="assunto">Assunto:</label>
+            <select id="assunto" name="assunto" required>
+              <option value="">Selecione um assunto</option>
+              <option value="atraso">Atraso na entrega</option>
+              <option value="produto">Problema com produto</option>
+              <option value="pagamento">Questões de pagamento</option>
+              <option value="outro">Outro assunto</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="mensagem">Mensagem:</label>
+            <textarea id="mensagem" name="mensagem" rows="5" required></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" id="voltar-rastreio" class="action-btn secondary"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> ENVIAR MENSAGEM</button>
+          </div>
+        </form>
+      </div>
+      
+      <div id="contato-success" class="success-message" style="display: none;">
+        <i class="fas fa-check-circle" style="font-size: 48px; color: #155724; margin-bottom: 15px;"></i>
+        <h2>Mensagem enviada com sucesso!</h2>
+        <p>Agradecemos pelo contato. Nossa equipe responderá em breve.</p>
+        <button id="voltar-rastreio-apos-contato" class="action-btn"><i class="fas fa-arrow-left"></i> Voltar ao Rastreamento</button>
+      </div>
+
+      <footer> 
+        <p><em>A Imperial Rodas preza pela transparência e pelo bom relacionamento com seus clientes.</em></p>
+        <div class="footer-links">
+          <a href="index.html">Voltar para Página Inicial</a> | 
+          <a href="#" id="politica-privacidade">Política de Privacidade</a>
+        </div>
+      </footer> 
+    </div> 
+  </div>
+  
+  <script src="rastreio.js"></script>
+</body> 
+</html>
